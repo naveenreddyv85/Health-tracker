@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Health Reports - Vanga Family</title>
+<style>
+  :root {
+    --green: #2d7a2d;
+    --green-bg: #e8f5e9;
+    --purple: #6a0dad;
+    --purple-bg: #f3e5f5;
+    --red: #c62828;
+    --red-bg: #ffebee;
+    --gray: #757575;
+    --gray-bg: #f5f5f5;
+    --blue: #1565c0;
+    --header-bg: #1a237e;
+    --tab-active: #0d47a1;
+    --border: #e0e0e0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; color: #333; }
+
+  header {
+    background: var(--header-bg);
+    color: white;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 600; }
+  header p { font-size: 0.85rem; opacity: 0.8; }
+
+  .person-filter {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 16px 24px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .person-filter label { font-size: 0.85rem; color: #555; align-self: center; font-weight: 600; }
+  .person-btn {
+    padding: 8px 20px;
+    border: 2px solid #bbb;
+    border-radius: 24px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.15s;
+    color: #444;
+  }
+  .person-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .person-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    padding: 10px 24px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+  .dot-green { background: var(--green-bg); border: 1.5px solid var(--green); }
+  .dot-purple { background: var(--purple-bg); border: 1.5px solid var(--purple); }
+  .dot-red { background: var(--red-bg); border: 1.5px solid var(--red); }
+  .dot-gray { background: var(--gray-bg); border: 1.5px solid #bbb; }
+
+  .group-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 12px 24px 0;
+    background: #f7f9fc;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .group-tab {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px 6px 0 0;
+    background: #e8ecf4;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: #555;
+    transition: all 0.15s;
+  }
+  .group-tab:hover { background: #d0d9f0; color: #222; }
+  .group-tab.active { background: white; color: var(--tab-active); font-weight: 700; border-bottom: 2px solid var(--tab-active); }
+
+  .content { padding: 20px 24px; }
+
+  .table-wrap { overflow-x: auto; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  table { width: 100%; border-collapse: collapse; background: white; min-width: 500px; }
+  thead th {
+    background: var(--tab-active);
+    color: white;
+    padding: 12px 14px;
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  thead th:first-child { text-align: left; min-width: 230px; }
+  thead th:nth-child(2) { text-align: left; min-width: 80px; background: #0a3d82; }
+
+  tbody tr:nth-child(even) { background: #fafbfe; }
+  tbody tr:hover { filter: brightness(0.97); }
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.85rem;
+    vertical-align: middle;
+  }
+  tbody td:first-child { font-weight: 500; color: #333; }
+  tbody td:nth-child(2) { color: #666; font-size: 0.78rem; }
+
+  .value-cell {
+    text-align: center;
+    min-width: 80px;
+    border-radius: 4px;
+    font-weight: 600;
+    padding: 6px 10px !important;
+  }
+  .cell-green { background: var(--green-bg); color: var(--green); }
+  .cell-purple { background: var(--purple-bg); color: var(--purple); }
+  .cell-red { background: var(--red-bg); color: var(--red); }
+  .cell-na { background: var(--gray-bg); color: #aaa; font-weight: 400; font-size: 0.75rem; }
+
+  .ref-range { font-size: 0.72rem; font-weight: 400; opacity: 0.7; display: block; margin-top: 1px; }
+
+  .info-box {
+    margin-top: 24px;
+    padding: 20px;
+    background: #e3f2fd;
+    border-radius: 8px;
+    border-left: 4px solid var(--blue);
+  }
+  .info-box h3 { font-size: 1rem; color: var(--blue); margin-bottom: 10px; }
+  .info-box p, .info-box li { font-size: 0.85rem; color: #444; line-height: 1.6; }
+  .info-box ul { margin-left: 18px; margin-top: 6px; }
+  .info-box code { background: #c5e1fa; padding: 1px 5px; border-radius: 3px; font-size: 0.82rem; }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.1rem; }
+    .person-filter, .legend, .group-tabs, .content { padding-left: 12px; padding-right: 12px; }
+    .group-tab { font-size: 0.76rem; padding: 6px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🩸 Vanga Family Health Reports</h1>
+    <p>Blood test results tracked across years</p>
+  </div>
+</header>
+
+<div class="person-filter">
+  <label>Select Person:</label>
+  <button class="person-btn active" onclick="selectPerson('Naveen', this)">Naveen</button>
+  <button class="person-btn" onclick="selectPerson('Sravya', this)">Sravya</button>
+  <button class="person-btn" onclick="selectPerson('Kaarunya', this)">Kaarunya</button>
+</div>
+
+<div class="legend">
+  <span class="legend-item"><span class="legend-dot dot-green"></span> Within normal range</span>
+  <span class="legend-item"><span class="legend-dot dot-purple"></span> Borderline (within 15% of limit)</span>
+  <span class="legend-item"><span class="legend-dot dot-red"></span> Outside reference range</span>
+  <span class="legend-item"><span class="legend-dot dot-gray"></span> Not tested</span>
+</div>
+
+<div class="group-tabs" id="groupTabs"></div>
+<div class="content" id="tableContent"></div>
+
+<script src="data.js"></script>
+<script>
+const YEARS = [2022, 2023, 2024, 2026];
+let currentPerson = 'Naveen';
+let currentGroup = null;
+
+function selectPerson(name, btn) {
+  currentPerson = name;
+  document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentGroup = null;
+  renderTabs();
+}
+
+function renderTabs() {
+  const groups = Object.keys(healthData[currentPerson]);
+  const tabsEl = document.getElementById('groupTabs');
+  tabsEl.innerHTML = '';
+  groups.forEach((g, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'group-tab' + (i === 0 ? ' active' : '');
+    btn.textContent = g;
+    btn.onclick = () => {
+      document.querySelectorAll('.group-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentGroup = g;
+      renderTable(g);
+    };
+    tabsEl.appendChild(btn);
+  });
+  currentGroup = groups[0];
+  renderTable(groups[0]);
+}
+
+function getStatus(value, ref) {
+  if (value === null || value === undefined) return 'na';
+  const borderPct = 0.15;
+  if (ref.min !== undefined && ref.max !== undefined) {
+    if (value < ref.min) {
+      return value >= ref.min * (1 - borderPct) ? 'purple' : 'red';
+    }
+    if (value > ref.max) {
+      return value <= ref.max * (1 + borderPct) ? 'purple' : 'red';
+    }
+    const range = ref.max - ref.min;
+    if (value <= ref.min + range * borderPct || value >= ref.max - range * borderPct) return 'purple';
+    return 'green';
+  }
+  if (ref.max !== undefined) {
+    if (value > ref.max) return value <= ref.max * (1 + borderPct) ? 'purple' : 'red';
+    if (value >= ref.max * (1 - borderPct)) return 'purple';
+    return 'green';
+  }
+  if (ref.min !== undefined) {
+    if (value < ref.min) return value >= ref.min * (1 - borderPct) ? 'purple' : 'red';
+    if (value <= ref.min * (1 + borderPct)) return 'purple';
+    return 'green';
+  }
+  return 'green';
+}
+
+function formatRef(ref) {
+  if (ref.min !== undefined && ref.max !== undefined) return `${ref.min} – ${ref.max}`;
+  if (ref.max !== undefined) return `< ${ref.max}`;
+  if (ref.min !== undefined) return `> ${ref.min}`;
+  return '';
+}
+
+function renderTable(groupName) {
+  const group = healthData[currentPerson][groupName];
+  const content = document.getElementById('tableContent');
+
+  let html = '<div class="table-wrap"><table><thead><tr>';
+  html += '<th>Test Name</th><th>Unit</th>';
+  YEARS.forEach(y => html += `<th>${y}</th>`);
+  html += '</tr></thead><tbody>';
+
+  for (const [testName, test] of Object.entries(group)) {
+    html += '<tr>';
+    html += `<td>${testName}<br><span class="ref-range">Ref: ${formatRef(test.refRange)}</span></td>`;
+    html += `<td>${test.unit}</td>`;
+    YEARS.forEach(y => {
+      const val = test.values[y];
+      const status = getStatus(val, test.refRange);
+      if (status === 'na') {
+        html += `<td class="value-cell cell-na">—</td>`;
+      } else {
+        html += `<td class="value-cell cell-${status}">${val}</td>`;
+      }
+    });
+    html += '</tr>';
+  }
+
+  html += '</tbody></table></div>';
+
+  html += `
+  <div class="info-box">
+    <h3>📋 How to Add Future Reports</h3>
+    <p>To add results from a new year, edit <code>data.js</code> and follow these steps:</p>
+    <ul>
+      <li>Add the new year to the <code>YEARS</code> array in <code>index.html</code> (line near <code>const YEARS = [2022, 2023, 2024, 2026]</code>)</li>
+      <li>For each test under the person's group, add: <code>2027: &lt;value&gt;</code> inside <code>values: {...}</code></li>
+      <li>Use <code>null</code> if a test was not done that year</li>
+      <li>Commit and push — GitHub Pages auto-deploys within ~1 minute</li>
+    </ul>
+    <p style="margin-top:10px;">For a new person: add a new top-level key in <code>data.js</code> matching exactly the structure of Naveen/Sravya/Kaarunya, then add a new button in the HTML person-filter section.</p>
+  </div>`;
+
+  content.innerHTML = html;
+}
+
+renderTabs();
+</script>
+</body>
+</html>
